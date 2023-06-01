@@ -65,6 +65,15 @@ mediapipe_proto_library(
 )
 
 mediapipe_proto_library(
+    name = "gaussian_blur_calculator_proto",
+    srcs = ["gaussian_blur_calculator.proto"],
+    deps = [
+        "//mediapipe/framework:calculator_options_proto",
+        "//mediapipe/framework:calculator_proto",
+    ],
+)
+
+mediapipe_proto_library(
     name = "recolor_calculator_proto",
     srcs = ["recolor_calculator.proto"],
     deps = [
@@ -215,6 +224,35 @@ cc_library(
     }),
     alwayslink = 1,
 )
+
+cc_library(
+    name = "gaussian_blur_calculator",
+    srcs = ["gaussian_blur_calculator.cc"],
+    deps = [
+        ":gaussian_blur_calculator_cc_proto",
+        "//mediapipe/framework/formats:image_format_cc_proto",
+        "//mediapipe/framework:calculator_options_cc_proto",
+        "@com_google_absl//absl/strings",
+        "//mediapipe/framework:calculator_framework",
+        "//mediapipe/framework/formats:image_frame",
+        "//mediapipe/framework/formats:image_frame_opencv",
+        "//mediapipe/framework/port:logging",
+        "//mediapipe/framework/port:opencv_core",
+        "//mediapipe/framework/port:opencv_imgproc",
+        "//mediapipe/framework/port:status",
+        "//mediapipe/framework/port:vector",
+    ] + select({
+        "//mediapipe/gpu:disable_gpu": [],
+        "//conditions:default": [
+            "//mediapipe/gpu:gl_calculator_helper",
+            "//mediapipe/gpu:gl_simple_shaders",
+            "//mediapipe/gpu:gl_quad_renderer",
+            "//mediapipe/gpu:shader_util",
+        ],
+    }),
+    alwayslink = 1,
+)
+
 
 mediapipe_proto_library(
     name = "rotation_mode_proto",
