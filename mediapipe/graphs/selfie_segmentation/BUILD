@@ -27,6 +27,7 @@ cc_library(
         "//mediapipe/calculators/core:flow_limiter_calculator",
         "//mediapipe/calculators/image:recolor_calculator",
         "//mediapipe/modules/selfie_segmentation:selfie_segmentation_gpu",
+        "//mediapipe/calculators/image:segmentation_smoothing_calculator",
     ],
 )
 
@@ -43,12 +44,17 @@ cc_library(
         "//mediapipe/calculators/core:flow_limiter_calculator",
         "//mediapipe/calculators/image:recolor_calculator",
         "//mediapipe/modules/selfie_segmentation:selfie_segmentation_cpu",
+        "//mediapipe/calculators/image:segmentation_smoothing_calculator",
+        "//mediapipe/calculators/core:previous_loopback_calculator",
+        "//mediapipe/calculators/util:to_image_calculator",
+        "//mediapipe/calculators/image:bilateral_filter_calculator",
+        "//mediapipe/calculators/image:gaussian_blur_calculator",
     ],
 )
 
 mediapipe_binary_graph(
     name = "selfie_segmentation_cpu_binary_graph",
-    graph = "selfie_segmentation_cpu.pbtxt",
+    graph = "selfie_segmentation_cpu_rs2.pbtxt",
     output_name = "selfie_segmentation_cpu.binarypb",
     deps = [":selfie_segmentation_cpu_deps"],
 )
