@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
+
 licenses(["notice"])
 
 package(default_visibility = ["//mediapipe/examples:__subpackages__"])
@@ -23,6 +26,11 @@ cc_binary(
         "//mediapipe/examples/desktop:demo_run_graph_main",
         "//mediapipe/graphs/selfie_segmentation:selfie_segmentation_cpu_deps",
     ],
+)
+
+wasm_cc_binary(
+    name="selfie_segmentation_cpu_wasm",
+    cc_target=":selfie_segmentation_cpu",
 )
 
 # Linux only
