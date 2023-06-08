@@ -150,6 +150,14 @@ config_setting(
     values = {"cpu": "x64_windows"},
 )
 
+config_setting(
+    name = "wasm",
+    values = {
+        "cpu": "wasm"
+    },
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     ["provisioning_profile.mobileprovision"],
     visibility = ["//visibility:public"],

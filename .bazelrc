@@ -107,3 +107,5 @@ try-import %workspace%/.user.bazelrc
 ##### WASM #####
 
 build --incompatible_enable_cc_toolchain_resolution
+build:wasm --cpu=wasm
+build:wasm --crosstool_top=@emsdk//emscripten_toolchain:cc-compiler-wasm
