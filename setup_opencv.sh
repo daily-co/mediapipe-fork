@@ -52,6 +52,7 @@ if [ -z "$1" ]
     fi
     rm -rf /tmp/build_opencv
     mkdir /tmp/build_opencv
+    cp 0001-Patch-for-latest-emscripten.patch /tmp/build_opencv
     cd /tmp/build_opencv
     git clone https://github.com/opencv/opencv_contrib.git
     git clone https://github.com/opencv/opencv.git
@@ -60,8 +61,11 @@ if [ -z "$1" ]
     git checkout 4.x
     cd ../opencv
     git checkout 4.x
+    git apply ../0001-Patch-for-latest-emscripten.patch
     cd release
     emcmake cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${install_prefix} \
+           -DCMAKE_CXX_STANDARD=17 \
+           -DCMAKE_CXX_STANDARD_REQUIRED=ON \
            -DPYTHON_DEFAULT_EXECUTABLE=/usr/bin/python \
            -DENABLE_PIC=FALSE \
 	   -DCPU_BASELINE='' \
@@ -78,7 +82,7 @@ if [ -z "$1" ]
            -DWITH_GTK_2_X=OFF \
            -DWITH_IPP=OFF \
            -DWITH_JASPER=OFF \
-           -DWITH_JPEG=OFF \
+           -DWITH_JPEG=ON \
            -DWITH_WEBP=OFF \
            -DWITH_OPENEXR=OFF \
            -DWITH_OPENGL=OFF \
@@ -125,17 +129,12 @@ if [ -z "$1" ]
            -DWITH_PTHREADS_PF=OFF \
            -DCV_ENABLE_INTRINSICS=ON \
            -DBUILD_WASM_INTRIN_TESTS=OFF \
-           -DCMAKE_C_FLAGS='-s WASM=1 -s SINGLE_FILE=1 -s USE_PTHREADS=0 -msimd128 ' \
-           -DCMAKE_CXX_FLAGS='-s WASM=1 -s SINGLE_FILE=1 -s USE_PTHREADS=0 -msimd128'
+           -DCMAKE_C_FLAGS='-s USE_PTHREADS=0 -msimd128 ' \
+           -DCMAKE_CXX_FLAGS='-s USE_PTHREADS=0 -msimd128'
     emmake make -j 16
     sudo make install
     rm -rf /tmp/build_opencv
     echo "OpenCV has been built. You can find the header files and libraries in ${install_prefix}/include/opencv2/ and ${install_prefix}/lib"
-
-    # https://github.com/cggos/dip_cvqt/issues/1#issuecomment-284103343
-    sudo touch /etc/ld.so.conf.d/mp_opencv.conf
-    sudo bash -c  "echo ${install_prefix}/lib >> /etc/ld.so.conf.d/mp_opencv.conf"
-    sudo ldconfig -v
 fi
 
 # Modify the build file.
