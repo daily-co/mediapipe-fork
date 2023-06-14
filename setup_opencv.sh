@@ -32,15 +32,16 @@ if [ "$1" ] && [ "$1" != "config_only" ]
     exit 0
 fi
 
-opencv_build_file="$( cd "$(dirname "$0")" ; pwd -P )"/third_party/opencv_linux.BUILD
+opencv_build_file="$( cd "$(dirname "$0")" ; pwd -P )"/third_party/opencv_wasm.BUILD
 workspace_file="$( cd "$(dirname "$0")" ; pwd -P )"/WORKSPACE
+install_prefix="/home/joao/ext/opencv_lib"
 
 if [ -z "$1" ]
   then
     echo "Installing OpenCV from source"
     if [[ -x "$(command -v apt)" ]]; then
       sudo apt update && sudo apt install build-essential git
-      sudo apt install cmake ffmpeg libavformat-dev libdc1394-22-dev libgtk2.0-dev \
+      sudo apt install cmake ffmpeg libavformat-dev libdc1394-dev libgtk2.0-dev \
                        libjpeg-dev libpng-dev libswscale-dev libtbb2 libtbb-dev \
                        libtiff-dev
     elif [[ -x "$(command -v dnf)" ]]; then
@@ -56,41 +57,93 @@ if [ -z "$1" ]
     git clone https://github.com/opencv/opencv.git
     mkdir opencv/release
     cd opencv_contrib
-    git checkout 3.4
+    git checkout 4.x
     cd ../opencv
-    git checkout 3.4
+    git checkout 4.x
     cd release
-    cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local \
-          -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_ts=OFF \
-          -DOPENCV_EXTRA_MODULES_PATH=/tmp/build_opencv/opencv_contrib/modules \
-          -DBUILD_opencv_aruco=OFF -DBUILD_opencv_bgsegm=OFF -DBUILD_opencv_bioinspired=OFF \
-          -DBUILD_opencv_ccalib=OFF -DBUILD_opencv_datasets=OFF -DBUILD_opencv_dnn=OFF \
-          -DBUILD_opencv_dnn_objdetect=OFF -DBUILD_opencv_dpm=OFF -DBUILD_opencv_face=OFF \
-          -DBUILD_opencv_fuzzy=OFF -DBUILD_opencv_hfs=OFF -DBUILD_opencv_img_hash=OFF \
-          -DBUILD_opencv_js=OFF -DBUILD_opencv_line_descriptor=OFF -DBUILD_opencv_phase_unwrapping=OFF \
-          -DBUILD_opencv_plot=OFF -DBUILD_opencv_quality=OFF -DBUILD_opencv_reg=OFF \
-          -DBUILD_opencv_rgbd=OFF -DBUILD_opencv_saliency=OFF -DBUILD_opencv_shape=OFF \
-          -DBUILD_opencv_structured_light=OFF -DBUILD_opencv_surface_matching=OFF \
-          -DBUILD_opencv_world=OFF -DBUILD_opencv_xobjdetect=OFF -DBUILD_opencv_xphoto=OFF \
-          -DCV_ENABLE_INTRINSICS=ON -DWITH_EIGEN=ON -DWITH_PTHREADS=ON -DWITH_PTHREADS_PF=ON \
-          -DWITH_JPEG=ON -DWITH_PNG=ON -DWITH_TIFF=ON
-    make -j 16
+    emcmake cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=${install_prefix} \
+           -DPYTHON_DEFAULT_EXECUTABLE=/usr/bin/python \
+           -DENABLE_PIC=FALSE \
+	   -DCPU_BASELINE='' \
+           -DCPU_DISPATCH='' \
+           -DCV_TRACE=OFF \
+           -DBUILD_SHARED_LIBS=OFF \
+           -DWITH_1394=OFF \
+           -DWITH_ADE=OFF \
+           -DWITH_VTK=OFF \
+           -DWITH_EIGEN=OFF \
+           -DWITH_FFMPEG=OFF \
+           -DWITH_GSTREAMER=OFF \
+           -DWITH_GTK=OFF \
+           -DWITH_GTK_2_X=OFF \
+           -DWITH_IPP=OFF \
+           -DWITH_JASPER=OFF \
+           -DWITH_JPEG=OFF \
+           -DWITH_WEBP=OFF \
+           -DWITH_OPENEXR=OFF \
+           -DWITH_OPENGL=OFF \
+           -DWITH_OPENVX=OFF \
+           -DWITH_OPENNI=OFF \
+           -DWITH_OPENNI2=OFF \
+           -DWITH_PNG=OFF \
+           -DWITH_TBB=OFF \
+           -DWITH_TIFF=OFF \
+           -DWITH_V4L=OFF \
+           -DWITH_OPENCL=OFF \
+           -DWITH_OPENCL_SVM=OFF \
+           -DWITH_OPENCLAMDFFT=OFF \
+           -DWITH_OPENCLAMDBLAS=OFF \
+           -DWITH_GPHOTO2=OFF \
+           -DWITH_LAPACK=OFF \
+           -DWITH_ITT=OFF \
+           -DWITH_QUIRC=ON \
+           -DBUILD_ZLIB=ON \
+           -DBUILD_opencv_apps=OFF \
+           -DBUILD_opencv_calib3d=ON \
+           -DBUILD_opencv_dnn=ON \
+           -DBUILD_opencv_features2d=ON \
+           -DBUILD_opencv_flann=ON \
+           -DBUILD_opencv_gapi=OFF \
+           -DBUILD_opencv_ml=OFF \
+           -DBUILD_opencv_photo=ON \
+           -DBUILD_opencv_imgcodecs=ON \
+           -DBUILD_opencv_shape=OFF \
+           -DBUILD_opencv_videoio=ON \
+           -DBUILD_opencv_videostab=OFF \
+           -DBUILD_opencv_highgui=ON \
+           -DBUILD_opencv_superres=OFF \
+           -DBUILD_opencv_stitching=OFF \
+           -DBUILD_opencv_java=OFF \
+           -DBUILD_opencv_js=ON \
+           -DBUILD_opencv_python2=OFF \
+           -DBUILD_opencv_python3=OFF \
+           -DBUILD_EXAMPLES=OFF \
+           -DBUILD_PACKAGE=OFF \
+           -DBUILD_TESTS=OFF \
+           -DBUILD_PERF_TESTS=OFF \
+           -DBUILD_DOCS=OFF \
+           -DWITH_PTHREADS_PF=OFF \
+           -DCV_ENABLE_INTRINSICS=ON \
+           -DBUILD_WASM_INTRIN_TESTS=OFF \
+           -DCMAKE_C_FLAGS='-s WASM=1 -s SINGLE_FILE=1 -s USE_PTHREADS=0 -msimd128 ' \
+           -DCMAKE_CXX_FLAGS='-s WASM=1 -s SINGLE_FILE=1 -s USE_PTHREADS=0 -msimd128'
+    emmake make -j 16
     sudo make install
     rm -rf /tmp/build_opencv
-    echo "OpenCV has been built. You can find the header files and libraries in /usr/local/include/opencv2/ and /usr/local/lib"
+    echo "OpenCV has been built. You can find the header files and libraries in ${install_prefix}/include/opencv2/ and ${install_prefix}/lib"
 
     # https://github.com/cggos/dip_cvqt/issues/1#issuecomment-284103343
     sudo touch /etc/ld.so.conf.d/mp_opencv.conf
-    sudo bash -c  "echo /usr/local/lib >> /etc/ld.so.conf.d/mp_opencv.conf"
+    sudo bash -c  "echo ${install_prefix}/lib >> /etc/ld.so.conf.d/mp_opencv.conf"
     sudo ldconfig -v
 fi
 
 # Modify the build file.
 echo "Modifying MediaPipe opencv config"
 
-sed -i '/linkopts/a \ \ \ \ \ \ \ \ \"-L/usr/local/lib",' $opencv_build_file
-linux_opencv_config=$(grep -n 'linux_opencv' $workspace_file | awk -F  ":" '{print $1}')
-path_line=$((linux_opencv_config + 2))
+sed -i "/linkopts/a \ \ \ \ \ \ \ \ \ \"-L${install_prefix}/lib\"," $opencv_build_file
+wasm_opencv_config=$(grep -n 'wasm_opencv' $workspace_file | awk -F  ":" '{print $1}')
+path_line=$((wasm_opencv_config + 2))
 sed -i "$path_line d" $workspace_file
-sed -i "$path_line i\    path = \"/usr/local\"," $workspace_file
+sed -i "$path_line i\    path = \"${install_prefix}\"," $workspace_file
 echo "Done"

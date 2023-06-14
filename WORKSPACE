@@ -46,11 +46,11 @@ http_archive(
 
 http_archive(
    name = "rules_foreign_cc",
-   strip_prefix = "rules_foreign_cc-0.1.0",
-   url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.1.0.zip",
+   strip_prefix = "rules_foreign_cc-0.9.0",
+   url = "https://github.com/bazelbuild/rules_foreign_cc/archive/refs/tags/0.9.0.tar.gz",
 )
 
-load("@rules_foreign_cc//:workspace_definitions.bzl", "rules_foreign_cc_dependencies")
+load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
 
 rules_foreign_cc_dependencies()
 
@@ -325,7 +325,7 @@ http_archive(
 new_local_repository(
     name = "linux_opencv",
     build_file = "@//third_party:opencv_linux.BUILD",
-    path = "/usr",
+    path = "/usr/local",
 )
 
 new_local_repository(
@@ -353,6 +353,12 @@ new_local_repository(
     name = "windows_opencv",
     build_file = "@//third_party:opencv_windows.BUILD",
     path = "C:\\opencv\\build",
+)
+
+new_local_repository(
+    name = "wasm_opencv",
+    build_file = "@//third_party:opencv_wasm.BUILD",
+    path = "/home/joao/ext/opencv_lib",
 )
 
 http_archive(
